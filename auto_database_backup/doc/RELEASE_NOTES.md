@@ -1,5 +1,13 @@
 ## Module <auto_database_backup>
 
+#### Unreleased
+#### Version 17.0.6.0.2
+#### ADD
+
+- Added backups to S3-compatible services with custom endpoint URLs.
+
+## Module <auto_database_backup>
+
 #### 06.11.2023
 #### Version 17.0.1.0.0
 #### ADD

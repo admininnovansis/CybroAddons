@@ -2,8 +2,8 @@
     :target: https://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
 
-Automatic Database Backup To Local Server, Remote Server, Google Drive, Dropbox, Onedrive, Nextcloud and Amazon S3
-==================================================================================================================
+Automatic Database Backup To Local Server, Remote Server, Google Drive, Dropbox, Onedrive, Nextcloud, Amazon S3 and S3-Compatible Storage
+=======================================================================================================================================
 * Generate Database Backups and store to multiple locations
 
 Configuration

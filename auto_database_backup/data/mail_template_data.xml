@@ -43,6 +43,9 @@
                             <t t-elif="object.backup_destination == 'amazon_s3'">
                                 <i>Amazon S3</i>
                             </t>
+                            <t t-elif="object.backup_destination == 's3_compatible'">
+                                <i>S3 Compatible</i>
+                            </t>
                             .
                             <br/>
                             <br/>
@@ -74,7 +77,10 @@
                             <t t-elif="object.backup_destination == 'amazon_s3'">
                                 Amazon S3
                             </t>
-                            <t t-if="object.backup_destination in ('local', 'ftp', 'sftp', 'dropbox')">
+                            <t t-elif="object.backup_destination == 's3_compatible'">
+                                S3 Compatible
+                            </t>
+                            <t t-if="object.backup_destination in ('local', 'ftp', 'sftp', 'dropbox', 's3_compatible')">
                                 <br/>
                                 Backup Path:
                                 <t t-if="object.backup_destination == 'local'">
@@ -94,6 +100,9 @@
                                 </t>
                                 <t t-elif="object.backup_destination == 'amazon_s3'">
                                     <t t-out="object.aws_folder_name"/>
+                                </t>
+                                <t t-elif="object.backup_destination == 's3_compatible'">
+                                    <t t-out="object.s3c_folder_name"/>
                                 </t>
                             </t>
                             <br/>
@@ -154,7 +163,10 @@
                             <t t-elif="object.backup_destination == 'amazon_s3'">
                                 Amazon S3
                             </t>
-                            <t t-if="object.backup_destination in ('local', 'ftp', 'sftp', 'dropbox','next_cloud','amazon_s3')">
+                            <t t-elif="object.backup_destination == 's3_compatible'">
+                                S3 Compatible
+                            </t>
+                            <t t-if="object.backup_destination in ('local', 'ftp', 'sftp', 'dropbox','next_cloud','amazon_s3','s3_compatible')">
                                 <br/>
                                 Backup Path:
                                 <t t-if="object.backup_destination == 'local'">
@@ -174,6 +186,9 @@
                                 </t>
                                 <t t-elif="object.backup_destination == 'amazon_s3'">
                                     <t t-out="object.aws_folder_name"/>
+                                </t>
+                                <t t-elif="object.backup_destination == 's3_compatible'">
+                                    <t t-out="object.s3c_folder_name"/>
                                 </t>
                             </t>
                             <br/>
