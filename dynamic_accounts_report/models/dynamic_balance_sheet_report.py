@@ -107,7 +107,7 @@ class ProfitLossReport(models.TransientModel):
                             'parent_state', 'in', target_move),
                             ('date', '>=', f'{current_year - count}-01-01'),
                             ('date', '<=', f'{current_year - count}-12-31')])
-                lists = [{'id': rec.id, 'value': [eval(i) for i in
+                lists = [{'id': rec.id, 'value': [int(i) for i in
                                                   rec.analytic_distribution.keys()]}
                          for rec in account_move_lines if
                          rec.analytic_distribution]
@@ -195,12 +195,15 @@ class ProfitLossReport(models.TransientModel):
                     **account_entries}
                 datas.append(data)
         else:
+            current_year = fields.Date.today().year
+            date_from = financial_report_id.date_from or f'{current_year}-01-01'
+            date_to = financial_report_id.date_to or f'{current_year}-12-31'
             account_move_lines = self.env['account.move.line'].search(
                 [('parent_state', 'in', target_move),
-                 ('date', '>=', f'{current_year}-01-01'),
-                 ('date', '<=', f'{current_year}-12-31')])
+                 ('date', '>=', date_from),
+                 ('date', '<=', date_to)])
             lists = [{'id': rec.id,
-                      'value': [eval(i) for i in
+                      'value': [int(i) for i in
                                 rec.analytic_distribution.keys()]}
                      for rec in account_move_lines if
                      rec.analytic_distribution]
