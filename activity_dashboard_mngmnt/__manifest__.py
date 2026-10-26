@@ -21,7 +21,7 @@
 ################################################################################
 {
     'name': 'Activity Management',
-    'version': '17.0.1.0.0',
+    'version': '17.0.1.0.2',
     'category': 'Extra Tools',
     'summary': """Dashboard for streamlined management of all activities.""",
     'description': """Simplify activity management with a comprehensive 
@@ -49,7 +49,10 @@
     },
     'images': ['static/description/banner.jpg'],
     'license': 'AGPL-3',
+    'post_init_hook': 'post_init_hook',
+    'uninstall_hook': 'uninstall_hook',
     'installable': True,
     'auto_install': False,
     'application': True,
+
 }

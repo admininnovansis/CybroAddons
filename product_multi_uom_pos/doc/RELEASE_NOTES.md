@@ -31,3 +31,15 @@
 #### Version 17.0.1.0.3
 ##### Update
 - Solved the issue occurred during the refund ,made changes in orderline
+
+
+#### 13.01.2025
+#### Version 17.0.1.0.4
+##### BUG FIX
+- Solved the issue sale details report
+
+#### 27.05.2025
+#### Version 17.0.1.0.5
+##### UPDT
+- Bug Fix - 1) Changed the work flow 
+            2) Changed the many-to-many field in to one-to-many for adding uom and its price.
