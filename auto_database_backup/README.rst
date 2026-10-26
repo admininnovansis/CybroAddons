@@ -11,6 +11,12 @@ Configuration
 - www.odoo.com/documentation/17.0/setup/install.html
 - Install our custom addon
 
+Backup frequency
+================
+Each backup configuration can run daily, weekly, or monthly. Daily is the
+default. The scheduled action checks active configurations daily and creates a
+backup when its configured frequency is due.
+
 License
 -------
 General Public License, Version 3 (LGPL v3).

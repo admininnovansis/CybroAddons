@@ -34,6 +34,7 @@ import subprocess
 import tempfile
 import odoo
 from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 from nextcloud import NextCloud
 from requests.auth import HTTPBasicAuth
 from werkzeug import urls
@@ -68,6 +69,14 @@ class DbBackupConfigure(models.Model):
         ('dump', 'Dump')
     ], string='Backup Format', default='zip', required=True,
         help='Format of the backup')
+    backup_frequency = fields.Selection([
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly')
+    ], string='Backup Frequency', default='daily', required=True,
+        help='How often this backup configuration should run')
+    last_backup_at = fields.Datetime(
+        string='Last Successful Backup', readonly=True, copy=False)
     backup_destination = fields.Selection([
         ('local', 'Local Storage'),
         ('google_drive', 'Google Drive'),
@@ -664,12 +673,21 @@ class DbBackupConfigure(models.Model):
         """Function for generating and storing backup.
            Database backup for all the active records in backup configuration
            model will be created."""
-        records = self.search([])
+        records = self.search([('active', '=', True)])
         mail_template_success = self.env.ref(
             'auto_database_backup.mail_template_data_db_backup_successful')
         mail_template_failed = self.env.ref(
             'auto_database_backup.mail_template_data_db_backup_failed')
+        now = fields.Datetime.now()
         for rec in records:
+            if rec.last_backup_at:
+                frequency_delta = {
+                    'daily': relativedelta(days=1),
+                    'weekly': relativedelta(weeks=1),
+                    'monthly': relativedelta(months=1),
+                }[rec.backup_frequency]
+                if rec.last_backup_at + frequency_delta > now:
+                    continue
             backup_time = fields.datetime.utcnow().strftime(
                 "%Y-%m-%d_%H-%M-%S")
             backup_filename = "%s_%s.%s" % (
@@ -694,6 +712,7 @@ class DbBackupConfigure(models.Model):
                             backup_duration = fields.datetime.utcnow() - create_time
                             if backup_duration.days >= rec.days_to_remove:
                                 os.remove(file)
+                    rec.last_backup_at = fields.Datetime.now()
                     if rec.notify_user:
                         mail_template_success.send_mail(rec.id,
                                                         force_send=True)
@@ -732,6 +751,7 @@ class DbBackupConfigure(models.Model):
                             if diff_days >= rec.days_to_remove:
                                 ftp_server.delete(file)
                     ftp_server.quit()
+                    rec.last_backup_at = fields.Datetime.now()
                     if rec.notify_user:
                         mail_template_success.send_mail(rec.id,
                                                         force_send=True)
@@ -771,6 +791,7 @@ class DbBackupConfigure(models.Model):
                         for file in expired:
                             sftp.unlink(file)
                     sftp.close()
+                    rec.last_backup_at = fields.Datetime.now()
                     if rec.notify_user:
                         mail_template_success.send_mail(rec.id,
                                                         force_send=True)
@@ -828,6 +849,7 @@ class DbBackupConfigure(models.Model):
                                     requests.delete(
                                         "https://www.googleapis.com/drive/v3/files/%s" %
                                         file['id'], headers=headers)
+                        rec.last_backup_at = fields.Datetime.now()
                         if rec.notify_user:
                             mail_template_success.send_mail(rec.id,
                                                             force_send=True)
@@ -870,6 +892,7 @@ class DbBackupConfigure(models.Model):
                             file_entries))
                         for file in expired_files:
                             dbx.files_delete_v2(file.path_display)
+                    rec.last_backup_at = fields.Datetime.now()
                     if rec.notify_user:
                         mail_template_success.send_mail(rec.id,
                                                         force_send=True)
@@ -911,6 +934,7 @@ class DbBackupConfigure(models.Model):
                                 delete_url = MICROSOFT_GRAPH_END_POINT + "/v1.0/me/drive/items/%s" % \
                                              file['id']
                                 requests.delete(delete_url, headers=headers)
+                    rec.last_backup_at = fields.Datetime.now()
                     if rec.notify_user:
                         mail_template_success.send_mail(rec.id,
                                                         force_send=True)
@@ -996,6 +1020,7 @@ class DbBackupConfigure(models.Model):
                             remote_file_path = f"/{folder_name}/{rec.db_name}_" \
                                                f"{backup_time}.{rec.backup_format}"
                             nc.put_file(remote_file_path, backup_file_path)
+                        rec.last_backup_at = fields.Datetime.now()
                 except Exception:
                     raise ValidationError('Please check connection')
             # Amazon S3 Backup
@@ -1058,6 +1083,7 @@ class DbBackupConfigure(models.Model):
                             s3.Object(rec.bucket_file_name,
                                       remote_file_path).upload_file(
                                 backup_file_path)
+                            rec.last_backup_at = fields.Datetime.now()
                             # If notify_user is enabled, send an email to the
                             # user notifying them about the successful backup
                             if rec.notify_user:
@@ -1129,6 +1155,7 @@ class DbBackupConfigure(models.Model):
                             s3.Object(rec.s3c_bucket_name,
                                       remote_file_path).upload_file(
                                 backup_file_path)
+                            rec.last_backup_at = fields.Datetime.now()
                             if rec.notify_user:
                                 mail_template_success.send_mail(
                                     rec.id, force_send=True)
